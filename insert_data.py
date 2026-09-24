@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 with app.app_context():
     print("📝 Inserting sample data...")
     
-    # Create users with Kenyan names
+   
     users_data = [
         {'username': 'oketch_j', 'email': 'james.oketch@email.com', 'full_name': 'James Oketch', 'phone_number': '0712345678', 'id_number': '12345678', 'password': 'password123'},
         {'username': 'wambui_m', 'email': 'mary.wambui@email.com', 'full_name': 'Mary Wambui', 'phone_number': '0723456789', 'id_number': '23456789', 'password': 'password123'},
@@ -32,7 +32,6 @@ with app.app_context():
     db.session.commit()
     print(f"✅ Total users created: {created_users}")
 
-    # Create admin user
     admin = User.query.filter_by(username='admin').first()
     if not admin:
         admin = User(
@@ -48,7 +47,6 @@ with app.app_context():
         db.session.commit()
         print("✅ Admin user created")
 
-    # Create loans
     loans_data = [
         {'user': 'oketch_j', 'amount': 50000, 'period': 6, 'purpose': 'Business', 'status': 'ACTIVE'},
         {'user': 'wambui_m', 'amount': 30000, 'period': 3, 'purpose': 'Education', 'status': 'APPROVED'},
@@ -85,7 +83,7 @@ with app.app_context():
     db.session.commit()
     print(f"✅ Total loans created: {created_loans}")
     
-    # Verify data
+  
     user_count = User.query.count()
     loan_count = Loan.query.count()
     
