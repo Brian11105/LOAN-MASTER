@@ -1,0 +1,122 @@
+/* Custom styles for LoanMaster */
+:root {
+    --primary-color: #0A6E4A;
+    --secondary-color: #D4AF37;
+    --accent-color: #1A8F5C;
+    --dark-color: #1A2A2F;
+    --light-color: #F5F0E6;
+    --success-color: #2D7D46;
+    --danger-color: #C0392B;
+    --warning-color: #F39C12;
+    --info-color: #2980B9;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f5f0e6 0%, #e8e0d5 100%);
+    min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f5f0e6;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #0A6E4A, #D4AF37);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #0A6E4A;
+}
+
+/* Form styles */
+.form-control:focus {
+    border-color: #D4AF37;
+    box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+}
+
+/* Animation classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Payment animation */
+.payment-success {
+    animation: pulse 0.5s ease-in-out 3;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-stat .number {
+        font-size: 1.8rem;
+    }
+    
+    .navbar-custom .navbar-brand {
+        font-size: 1.2rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .navbar-custom,
+    .footer,
+    .btn,
+    .no-print {
+        display: none !important;
+    }
+    
+    .card-custom {
+        box-shadow: none !important;
+        border: 1px solid #ddd;
+    }
+}

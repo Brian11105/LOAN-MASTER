@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Loan Management System{% endblock %}</title>
+    <!-- Bootstrap 5 with unique color scheme -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Unique color scheme: Emerald Green & Gold -->
+    <style>
+        :root {
+            --primary-color: #0A6E4A;
+            --secondary-color: #D4AF37;
+            --accent-color: #1A8F5C;
+            --dark-color: #1A2A2F;
+            --light-color: #F5F0E6;
+            --success-color: #2D7D46;
+            --danger-color: #C0392B;
+            --warning-color: #F39C12;
+            --info-color: #2980B9;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f0e6 0%, #e8e0d5 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar-custom {
+            background: linear-gradient(90deg, #0A6E4A 0%, #1A8F5C 50%, #0A6E4A 100%);
+            box-shadow: 0 4px 15px rgba(10, 110, 74, 0.3);
+            padding: 15px 0;
+        }
+        
+        .navbar-custom .navbar-brand {
+            color: #D4AF37;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .navbar-custom .nav-link {
+            color: #F5F0E6 !important;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: all 0.3s;
+        }
+        
+        .navbar-custom .nav-link:hover {
+            color: #D4AF37 !important;
+            transform: translateY(-2px);
+        }
+        
+        .btn-custom {
+            background: linear-gradient(135deg, #D4AF37 0%, #C5A030 100%);
+            color: #1A2A2F;
+            border: none;
+            padding: 10px 25px;
+            font-weight: 600;
+            border-radius: 25px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.4);
+            color: #1A2A2F;
+        }
+        
+        .btn-outline-custom {
+            border: 2px solid #D4AF37;
+            color: #D4AF37;
+            background: transparent;
+            padding: 8px 20px;
+            font-weight: 600;
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+        
+        .btn-outline-custom:hover {
+            background: #D4AF37;
+            color: #1A2A2F;
+            transform: translateY(-2px);
+        }
+        
+        .card-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            padding: 20px;
+        }
+        
+        .card-custom:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(10, 110, 74, 0.15);
+        }
+        
+        .card-custom .card-header {
+            background: linear-gradient(135deg, #0A6E4A 0%, #1A8F5C 100%);
+            color: #D4AF37;
+            border-radius: 15px 15px 0 0;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        
+        .dashboard-stat {
+            background: linear-gradient(135deg, #0A6E4A 0%, #1A8F5C 100%);
+            color: #F5F0E6;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(10, 110, 74, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .dashboard-stat:hover {
+            transform: scale(1.05);
+        }
+        
+        .dashboard-stat .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #D4AF37;
+        }
+        
+        .dashboard-stat .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .flash-message {
+            border-radius: 15px;
+            border-left: 5px solid;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .flash-success {
+            background: rgba(45, 125, 70, 0.1);
+            border-left-color: #2D7D46;
+        }
+        
+        .flash-danger {
+            background: rgba(192, 57, 43, 0.1);
+            border-left-color: #C0392B;
+        }
+        
+        .flash-info {
+            background: rgba(41, 128, 185, 0.1);
+            border-left-color: #2980B9;
+        }
+        
+        .flash-warning {
+            background: rgba(243, 156, 18, 0.1);
+            border-left-color: #F39C12;
+        }
+        
+        .footer {
+            background: #1A2A2F;
+            color: #F5F0E6;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+        
+        .footer a {
+            color: #D4AF37;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            color: #F5F0E6;
+        }
+        
+        .badge-risk-high {
+            background: #C0392B;
+            color: white;
+        }
+        
+        .badge-risk-medium {
+            background: #F39C12;
+            color: white;
+        }
+        
+        .badge-risk-low {
+            background: #2D7D46;
+            color: white;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-coins me-2"></i>LoanMaster
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-chart-pie me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('apply_loan') }}">
+                                <i class="fas fa-hand-holding-usd me-1"></i>Apply Loan
+                            </a>
+                        </li>
+                        {% if current_user.is_admin %}
+                            <li class="nav-item">
+    <a class="nav-link" href="{{ url_for('crb_reports') }}">
+        <i class="fas fa-file-invoice me-1"></i>CRB Reports
+    </a>
+</li> 
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                                    <i class="fas fa-user-shield me-1"></i>Admin
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('risk_assessment_report') }}">
+                                    <i class="fas fa-chart-line me-1"></i>Risk Report
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('register') }}">
+                                <i class="fas fa-user-plus me-1"></i>Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">
+                        <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-coins me-2"></i>LoanMaster</h5>
+                    <p>Smart loan management for everyone.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        {% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                            <li><a href="{{ url_for('apply_loan') }}">Apply Loan</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('login') }}">Login</a></li>
+                            <li><a href="{{ url_for('register') }}">Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact</h5>
+                    <p><i class="fas fa-phone me-2"></i>+254 700 000 000</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@loanmaster.co.ke</p>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2024 LoanMaster. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,30 @@
+# Environment variables (contains secrets!)
+.env
+
+# Virtual environment (too large, machine-specific)
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Temporary PDF files
+temp/
+*.pdf
+
+# Logs
+logs/
+*.log
+
+# IDE settings
+.vscode/
+.idea/
+
+# Database files
+*.db
+# ngrok binary
+ngrok*.zip
+ngrok.exe
+
+# Accidental file
+python

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Risk Assessment - Loan Master{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color: #0A6E4A;">
+            <i class="fas fa-chart-line me-2"></i>Risk Assessment Report
+        </h2>
+        <div>
+            <a href="{{ url_for('download_risk_pdf') }}" class="btn btn-custom">
+                <i class="fas fa-file-pdf me-2"></i>Download PDF Report
+            </a>
+            <button onclick="window.print()" class="btn btn-outline-custom ms-2">
+                <i class="fas fa-print me-2"></i>Print
+            </button>
+        </div>
+    </div>
+    
+    <!-- Rest of your existing risk report content -->
+    <!-- Risk Metrics -->
+    <div class="row mt-4 g-4">
+        <div class="col-md-3">
+            <div class="dashboard-stat">
+                <div class="number">{{ risk_metrics.total_loans }}</div>
+                <div class="label">Total Loans Analyzed</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-stat" style="background: #C0392B;">
+                <div class="number">{{ risk_metrics.high_risk }}</div>
+                <div class="label">High Risk</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-stat" style="background: #F39C12;">
+                <div class="number">{{ risk_metrics.medium_risk }}</div>
+                <div class="label">Medium Risk</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-stat" style="background: #2D7D46;">
+                <div class="number">{{ risk_metrics.low_risk }}</div>
+                <div class="label">Low Risk</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card-custom">
+                <h5><i class="fas fa-calculator me-2" style="color: #D4AF37;"></i>Key Metrics</h5>
+                <div class="mt-3">
+                    <p><strong>Average Risk Score:</strong> {{ "%.1f"|format(risk_metrics.average_risk) }}%</p>
+                    <p><strong>Default Rate:</strong> {{ "%.1f"|format(risk_metrics.default_rate) }}%</p>
+                    <div class="progress mt-2" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ 100 - risk_metrics.default_rate }}%;" 
+                             aria-valuenow="{{ 100 - risk_metrics.default_rate }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ "%.1f"|format(100 - risk_metrics.default_rate) }}% Repayment Rate
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card-custom">
+                <h5><i class="fas fa-exclamation-triangle me-2" style="color: #D4AF37;"></i>Risk Distribution</h5>
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>High Risk</span>
+                        <span>{{ risk_metrics.high_risk }} loans</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar bg-danger" role="progressbar" 
+                             style="width: {{ (risk_metrics.high_risk / risk_metrics.total_loans * 100) if risk_metrics.total_loans > 0 else 0 }}%;">
+                            {{ "%.1f"|format((risk_metrics.high_risk / risk_metrics.total_loans * 100) if risk_metrics.total_loans > 0 else 0) }}%
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Medium Risk</span>
+                        <span>{{ risk_metrics.medium_risk }} loans</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar bg-warning" role="progressbar" 
+                             style="width: {{ (risk_metrics.medium_risk / risk_metrics.total_loans * 100) if risk_metrics.total_loans > 0 else 0 }}%;">
+                            {{ "%.1f"|format((risk_metrics.medium_risk / risk_metrics.total_loans * 100) if risk_metrics.total_loans > 0 else 0) }}%
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Low Risk</span>
+                        <span>{{ risk_metrics.low_risk }} loans</span>
+                    </div>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ (risk_metrics.low_risk / risk_metrics.total_loans * 100) if risk_metrics.total_loans > 0 else 0 }}%;">
+                            {{ "%.1f"|format((risk_metrics.low_risk / risk_metrics.total_loans * 100) if risk_metrics.total_loans > 0 else 0) }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- High Risk Loans -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card-custom">
+                <h5><i class="fas fa-exclamation-circle me-2" style="color: #D4AF37;"></i>High Risk Loans</h5>
+                <div class="table-responsive mt-3">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Loan ID</th>
+                                <th>Borrower</th>
+                                <th>Amount</th>
+                                <th>Risk Score</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for loan in high_risk_loans %}
+                            <tr>
+                                <td>#{{ loan.id }}</td>
+                                <td>{{ loan.borrower.full_name }}</td>
+                                <td>KSh {{ "%.2f"|format(loan.loan_amount) }}</td>
+                                <td>
+                                    <span class="badge badge-risk-high">{{ loan.risk_score }}%</span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if loan.status == 'ACTIVE' %}bg-success{% elif loan.status == 'PENDING' %}bg-warning{% elif loan.status == 'APPROVED' %}bg-info{% elif loan.status == 'REJECTED' %}bg-danger{% elif loan.status == 'COMPLETED' %}bg-secondary{% else %}bg-dark{% endif %}">
+                                        {{ loan.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center">No high risk loans found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

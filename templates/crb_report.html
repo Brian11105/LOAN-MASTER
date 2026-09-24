@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}CRB Credit Report - SmartLoan{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 style="color: #0A6E4A;">
+        <i class="fas fa-file-invoice me-2"></i>CRB Credit Reports
+    </h2>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card-custom">
+                <h5><i class="fas fa-users me-2" style="color: #D4AF37;"></i>User CRB Reports</h5>
+                <div class="table-responsive mt-3">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Credit Score</th>
+                                <th>Rating</th>
+                                <th>NPA Count</th>
+                                <th>Payment History</th>
+                                <th>Default History</th>
+                                <th>Status</th>
+                                <th>Recommendation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for crb in crb_reports %}
+                            <tr>
+                                <td>
+                                    <strong>{{ crb.user.full_name }}</strong><br>
+                                    <small class="text-muted">{{ crb.user.username }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge {% if crb.credit_score >= 700 %}bg-success{% elif crb.credit_score >= 600 %}bg-info{% elif crb.credit_score >= 500 %}bg-warning{% elif crb.credit_score >= 400 %}bg-danger{% else %}bg-dark{% endif %}" 
+                                          style="font-size: 1rem; padding: 8px 12px;">
+                                        {{ crb.credit_score }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if crb.credit_rating == 'EXCELLENT' %}bg-success{% elif crb.credit_rating == 'GOOD' %}bg-info{% elif crb.credit_rating == 'FAIR' %}bg-warning{% elif crb.credit_rating == 'POOR' %}bg-danger{% else %}bg-dark{% endif %}">
+                                        {{ crb.credit_rating }}
+                                    </span>
+                                </td>
+                                <td>{{ crb.npa_count }}</td>
+                                <td>
+                                    <span class="badge {% if crb.payment_history == 'GOOD' %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ crb.payment_history }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if crb.default_history %}
+                                        <span class="badge bg-danger">⚠️ YES</span>
+                                    {% else %}
+                                        <span class="badge bg-success">✅ NO</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if crb.user.loans|length > 0 %}
+                                        <span class="badge bg-info">Has History</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">New User</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge {% if crb.credit_score >= 600 %}bg-success{% elif crb.credit_score >= 500 %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ crb.get_recommendation()[:30] }}...
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center">No CRB reports available</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

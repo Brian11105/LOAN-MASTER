@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - LoanMaster{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 style="color: #0A6E4A;">
+        <i class="fas fa-user-shield me-2"></i>Admin Dashboard
+    </h2>
+    
+    <!-- Admin Statistics -->
+    <div class="row mt-4 g-4">
+        <div class="col-md-3">
+            <div class="dashboard-stat">
+                <div class="number">{{ total_loans }}</div>
+                <div class="label">Total Loans</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-stat">
+                <div class="number">{{ pending_loans }}</div>
+                <div class="label">Pending Approval</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-stat">
+                <div class="number">{{ active_loans }}</div>
+                <div class="label">Active Loans</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-stat">
+                <div class="number">KSh {{ "%.2f"|format(total_lent) }}</div>
+                <div class="label">Total Lent</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Loans -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card-custom">
+                <h5><i class="fas fa-list me-2" style="color: #D4AF37;"></i>All Loans</h5>
+                <div class="table-responsive mt-3">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Borrower</th>
+                                <th>Amount</th>
+                                <th>Period</th>
+                                <th>Status</th>
+                                <th>Risk</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for loan in all_loans %}
+                            <tr>
+                                <td>#{{ loan.id }}</td>
+                                <td>{{ loan.borrower.full_name }}</td>
+                                <td>KSh {{ "%.2f"|format(loan.loan_amount) }}</td>
+                                <td>{{ loan.loan_period }} months</td>
+                                <td>
+                                    <span class="badge {% if loan.status == 'ACTIVE' %}bg-success{% elif loan.status == 'PENDING' %}bg-warning{% elif loan.status == 'APPROVED' %}bg-info{% elif loan.status == 'REJECTED' %}bg-danger{% elif loan.status == 'COMPLETED' %}bg-secondary{% else %}bg-dark{% endif %}">
+                                        {{ loan.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if loan.risk_score >= 70 %}badge-risk-high{% elif loan.risk_score >= 40 %}badge-risk-medium{% else %}badge-risk-low{% endif %}">
+                                        {{ loan.risk_score }}%
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if loan.status == 'PENDING' %}
+                                        <a href="{{ url_for('approve_loan', loan_id=loan.id) }}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        <a href="{{ url_for('reject_loan', loan_id=loan.id) }}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    {% elif loan.status == 'APPROVED' %}
+                                        <a href="{{ url_for('activate_loan', loan_id=loan.id) }}" class="btn btn-sm btn-custom">
+                                            <i class="fas fa-play"></i> Activate
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No loans found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

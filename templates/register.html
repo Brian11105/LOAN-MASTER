@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Register - LoanMaster{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-custom p-4">
+                <div class="text-center mb-4">
+                    <i class="fas fa-coins" style="color: #D4AF37; font-size: 3rem;"></i>
+                    <h3 style="color: #0A6E4A;">Create Account</h3>
+                    <p class="text-muted">Join LoanMaster and access smart loans</p>
+                </div>
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="full_name" required 
+                                   placeholder="John Doe" style="border-radius: 10px; border: 2px solid #D4AF37;">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username" required 
+                                   placeholder="johndoe" style="border-radius: 10px; border: 2px solid #D4AF37;">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required 
+                                   placeholder="john@example.com" style="border-radius: 10px; border: 2px solid #D4AF37;">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" name="phone_number" required 
+                                   placeholder="0712345678" style="border-radius: 10px; border: 2px solid #D4AF37;">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">ID Number</label>
+                            <input type="text" class="form-control" name="id_number" required 
+                                   placeholder="12345678" style="border-radius: 10px; border: 2px solid #D4AF37;">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password" required 
+                                   placeholder="Create a strong password" style="border-radius: 10px; border: 2px solid #D4AF37;">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-custom w-100">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </button>
+                </form>
+                <div class="text-center mt-3">
+                    <p>Already have an account? <a href="{{ url_for('login') }}" style="color: #D4AF37;">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
