@@ -9,17 +9,17 @@ import json
 import random
 import os
 
-# Initialize Flask app
+
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
-# Configuration
+
 app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/loan_management_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 
-# Initialize extensions
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
@@ -28,9 +28,6 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
 
-# ============================================================
-# DATABASE MODELS
-# ============================================================
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -68,7 +65,7 @@ class Loan(db.Model):
     risk_score = db.Column(db.Integer, default=0)
     payments = db.relationship('Payment', backref='loan', lazy=True)
 
-    # CRB fields
+ 
     crb_score = db.Column(db.Integer, default=500)
     crb_npa = db.Column(db.Integer, default=0)
     crb_history = db.Column(db.String(20), default='GOOD')
@@ -152,9 +149,7 @@ class TransactionLog(db.Model):
     ip_address = db.Column(db.String(50))
 
 
-# ============================================================
-# CRB SIMULATION MODELS
-# ============================================================
+
 
 class CRBSimulation(db.Model):
     """Simulated CRB data for users"""
@@ -227,18 +222,14 @@ class CRBSimulationLog(db.Model):
     user = db.relationship('User', backref=db.backref('crb_simulation_logs', lazy=True))
 
 
-# ============================================================
-# USER LOADER
-# ============================================================
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
 
-# ============================================================
-# DECORATORS
-# ============================================================
+
 
 def admin_required(f):
     @wraps(f)
@@ -250,9 +241,7 @@ def admin_required(f):
     return decorated_function
 
 
-# ============================================================
-# ROUTES
-# ============================================================
+
 
 @app.route('/')
 def index():
@@ -298,7 +287,7 @@ def register():
             db.session.add(user)
             db.session.commit()
             
-            # Generate CRB data for new user
+           
             from app.utils.crb_simulator import CRBSimulator
             crb_data = CRBSimulator.generate_score_for_user(user)
             
@@ -401,9 +390,7 @@ def dashboard():
         return render_template('dashboard.html')
 
 
-# ============================================================
-# USER DOWNLOAD ROUTES
-# ============================================================
+
 
 @app.route('/dashboard/download_loans')
 @login_required
@@ -479,9 +466,6 @@ def download_my_payments():
         return redirect(url_for('dashboard'))
 
 
-# ============================================================
-# LOAN APPLICATION & PAYMENT ROUTES
-# ============================================================
 
 @app.route('/apply_loan', methods=['GET', 'POST'])
 @login_required
@@ -582,9 +566,6 @@ def make_payment():
     return redirect(url_for('dashboard'))
 
 
-# ============================================================
-# M-PESA STK PUSH ROUTES
-# ============================================================
 
 @app.route('/mpesa/initiate', methods=['POST'])
 @login_required
@@ -607,13 +588,13 @@ def initiate_mpesa_payment():
             flash('Invalid amount', 'danger')
             return redirect(url_for('dashboard'))
         
-        # ⭐ CHECK IF PHONE NUMBER EXISTS IN DATABASE ⭐
+  
         phone_exists = User.query.filter_by(phone_number=phone_number).first() is not None
         
-        # Initialize M-PESA client
+    
         mpesa = MpesaClient()
         
-        # Initiate STK Push
+ 
         response = mpesa.stk_push(
             phone_number=phone_number,
             amount=amount,
@@ -628,7 +609,7 @@ def initiate_mpesa_payment():
         if response.get('ResponseCode') == '0':
             checkout_id = response.get('CheckoutRequestID')
             
-            # Create payment record
+        
             payment = Payment(
                 loan_id=loan_id,
                 amount=amount,
@@ -639,12 +620,12 @@ def initiate_mpesa_payment():
             payment.mpesa_transaction_id = checkout_id
             payment.mpesa_phone_number = phone_number
             
-            # ⭐ AUTO-COMPLETE FOR DATABASE NUMBERS ⭐
+       
             if phone_exists:
                 payment.status = 'COMPLETED'
                 payment.receipt_number = f'MPESA{checkout_id[-8:]}'
                 
-                # Update loan status
+               
                 existing_payments = Payment.query.filter_by(
                     loan_id=loan_id,
                     status='COMPLETED'
@@ -656,7 +637,7 @@ def initiate_mpesa_payment():
                 else:
                     loan.status = 'ACTIVE'
                 
-                # Log transaction
+        
                 log = TransactionLog(
                     user_id=current_user.id,
                     transaction_type='PAYMENT',
@@ -672,7 +653,7 @@ def initiate_mpesa_payment():
                 
                 flash(f'✅ Payment of KSh {amount:,.2f} completed successfully!', 'success')
             else:
-                # Number not in database → PENDING
+
                 db.session.add(payment)
                 db.session.commit()
                 
@@ -705,13 +686,13 @@ def mpesa_callback():
             print(f"Payment not found for CheckoutRequestID: {checkout_request_id}")
             return jsonify({'ResultCode': 1, 'ResultDesc': 'Payment not found'}), 404
         
-        # ⭐ CHECK IF PAYMENT ALREADY COMPLETED (from database number) ⭐
+
         if payment.status == 'COMPLETED':
             print(f"Payment {payment.id} already completed. Ignoring callback.")
             return jsonify({'ResultCode': 0, 'ResultDesc': 'Already processed'})
         
         if result_code == 0:
-            # Payment successful
+
             payment.status = 'COMPLETED'
             
             callback_metadata = result.get('CallbackMetadata', {})
@@ -748,15 +729,11 @@ def mpesa_callback():
             print(f"✅ Payment {payment.id} completed successfully")
             
         else:
-            # ⭐ SANDBOX FAILURE: Keep as PENDING instead of FAILED ⭐
-            # This allows manual completion for demo purposes
+           
             print(f"⚠️ Callback failed: {result_desc}")
             print(f"   Payment {payment.id} stays PENDING for manual completion")
             
-            # DO NOT set to FAILED — keep as PENDING
-            # payment.status = 'FAILED'
-            
-            # Log the failure for audit
+         
             log = TransactionLog(
                 user_id=payment.loan.user_id,
                 transaction_type='PAYMENT_FAILED',
@@ -804,9 +781,7 @@ def check_payment_status(transaction_id):
         return jsonify({'error': str(e)}), 500
 
 
-# ============================================================
-# ADMIN ROUTES
-# ============================================================
+
 
 @app.route('/admin')
 @login_required
@@ -881,9 +856,7 @@ def activate_loan(loan_id):
     return redirect(url_for('admin_dashboard'))
 
 
-# ============================================================
-# RISK ASSESSMENT REPORT ROUTES
-# ============================================================
+
 
 @app.route('/reports/risk_assessment')
 @login_required
@@ -963,9 +936,6 @@ def download_risk_pdf():
         return redirect(url_for('risk_assessment_report'))
 
 
-# ============================================================
-# CRB REPORT ROUTES
-# ============================================================
 
 @app.route('/admin/crb_reports')
 @login_required
@@ -1004,9 +974,7 @@ def download_crb_pdf():
         return redirect(url_for('crb_reports'))
 
 
-# ============================================================
-# ERROR HANDLERS
-# ============================================================
+
 
 @app.errorhandler(404)
 def not_found_error(error):
@@ -1019,9 +987,7 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 
-# ============================================================
-# RUN APPLICATION
-# ============================================================
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
